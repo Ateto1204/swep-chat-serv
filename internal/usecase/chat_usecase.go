@@ -3,18 +3,18 @@ package usecase
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"time"
 
 	"github.com/Ateto1204/swep-chat-serv/entity"
-	"github.com/Ateto1204/swep-chat-serv/internal/model"
+	"github.com/Ateto1204/swep-chat-serv/internal/domain"
 	"github.com/Ateto1204/swep-chat-serv/internal/repository"
 )
 
 type ChatUseCase interface {
-	SaveChat(ids []string) (*entity.Chat, error)
-	GetChat(id string) (*model.Chat, error)
-	GenerateID() string
+	SaveChat(name string, membersID []string) (*entity.Chat, error)
+	GetChat(id string) (*domain.Chat, error)
 }
 
 type chatUseCase struct {
@@ -27,25 +27,31 @@ func NewMsgUseCase(repo repository.ChatRepository) ChatUseCase {
 	}
 }
 
-func (uc *chatUseCase) SaveChat(ids []string) (*entity.Chat, error) {
+func (uc *chatUseCase) SaveChat(name string, membersID []string) (*entity.Chat, error) {
+	if len(membersID) < 3 {
+		return nil, errors.New("chat room cannot be less than 3 people")
+	}
 	t := time.Now()
-	id := uc.GenerateID()
-	chat, err := uc.repository.Save(id, ids, t)
+	chatID := GenerateID()
+	if name == "" {
+		name = "gruop"
+	}
+	chat, err := uc.repository.Save(chatID, name, membersID, t)
 	if err != nil {
 		return nil, err
 	}
 	return chat, nil
 }
 
-func (uc *chatUseCase) GetChat(id string) (*model.Chat, error) {
-	chat, err := uc.repository.GetByID(id)
+func (uc *chatUseCase) GetChat(chatID string) (*domain.Chat, error) {
+	chat, err := uc.repository.GetByID(chatID)
 	if err != nil {
 		return nil, err
 	}
 	return chat, nil
 }
 
-func (uc *chatUseCase) GenerateID() string {
+func GenerateID() string {
 	timestamp := time.Now().UnixNano()
 
 	input := fmt.Sprintf("%d", timestamp)
@@ -55,4 +61,16 @@ func (uc *chatUseCase) GenerateID() string {
 	hashID := hex.EncodeToString(hash.Sum(nil))
 
 	return hashID
+}
+
+func AddMsgToChat(msgId, chatID string) error {
+	return nil
+}
+
+func AddMemberToChat(memberID []string, chatID string) error {
+	return nil
+}
+
+func RemoveMembersFromChat(memberID []string, chatID string) error {
+	return nil
 }
