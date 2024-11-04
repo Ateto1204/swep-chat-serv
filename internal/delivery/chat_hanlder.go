@@ -49,3 +49,21 @@ func (h *ChatHandler) GetChat(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, chat)
 }
+
+func (h *ChatHandler) UpdContents(c *gin.Context) {
+	type Input struct {
+		ID    string `json:"id"`
+		MsgID string `json:"msg_id"`
+	}
+	var input Input
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	chat, err := h.chatUseCase.AddMsgToChat(input.ID, input.MsgID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, chat)
+}
