@@ -17,6 +17,7 @@ func NewChatHandler(chatUseCase usecase.ChatUseCase) *ChatHandler {
 
 func (h *ChatHandler) SaveChat(c *gin.Context) {
 	type Input struct {
+		Name    string   `json:"name"`
 		Members []string `json:"members"`
 	}
 	var input Input
@@ -24,7 +25,7 @@ func (h *ChatHandler) SaveChat(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	chat, err := h.chatUseCase.SaveChat(input.Members)
+	chat, err := h.chatUseCase.SaveChat(input.Name, input.Members)
 	if err != nil {
 		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 		return

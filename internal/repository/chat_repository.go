@@ -5,13 +5,13 @@ import (
 	"time"
 
 	"github.com/Ateto1204/swep-chat-serv/entity"
-	"github.com/Ateto1204/swep-chat-serv/internal/model"
+	"github.com/Ateto1204/swep-chat-serv/internal/domain"
 	"gorm.io/gorm"
 )
 
 type ChatRepository interface {
-	Save(id string, ids []string, t time.Time) (*entity.Chat, error)
-	GetByID(id string) (*model.Chat, error)
+	Save(chatID string, name string, membersID []string, t time.Time) (*entity.Chat, error)
+	GetByID(id string) (*domain.Chat, error)
 	UpdByID(id string) error
 }
 
@@ -23,13 +23,14 @@ func NewChatRepository(db *gorm.DB) ChatRepository {
 	return &chatRepository{db}
 }
 
-func (r *chatRepository) Save(id string, ids []string, t time.Time) (*entity.Chat, error) {
-	members, err := strSerialize(ids)
+func (r *chatRepository) Save(chatID string, name string, membersID []string, t time.Time) (*entity.Chat, error) {
+	members, err := strSerialize(membersID)
 	if err != nil {
 		return nil, err
 	}
 	chat := &entity.Chat{
-		ID:       id,
+		ID:       chatID,
+		Name:     name,
 		Members:  members,
 		Contents: "[]",
 		CreateAt: t,
@@ -41,9 +42,9 @@ func (r *chatRepository) Save(id string, ids []string, t time.Time) (*entity.Cha
 	return chat, nil
 }
 
-func (r *chatRepository) GetByID(id string) (*model.Chat, error) {
+func (r *chatRepository) GetByID(chatID string) (*domain.Chat, error) {
 	var chat entity.Chat
-	err := r.db.Where("id = ?", id).Order("id").First(&chat).Error
+	err := r.db.Where("id = ?", chatID).Order("id").First(&chat).Error
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +56,7 @@ func (r *chatRepository) GetByID(id string) (*model.Chat, error) {
 	if err != nil {
 		return nil, err
 	}
-	model := &model.Chat{
+	model := &domain.Chat{
 		ID:       chat.ID,
 		Members:  members,
 		Contents: contents,
