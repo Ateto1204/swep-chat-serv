@@ -7,14 +7,14 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Ateto1204/swep-chat-serv/entity"
 	"github.com/Ateto1204/swep-chat-serv/internal/domain"
 	"github.com/Ateto1204/swep-chat-serv/internal/repository"
 )
 
 type ChatUseCase interface {
-	SaveChat(name string, membersID []string) (*entity.Chat, error)
+	SaveChat(name string, membersID []string) (*domain.Chat, error)
 	GetChat(id string) (*domain.Chat, error)
+	AddMsgToChat(msgID, chatID string) (*domain.Chat, error)
 }
 
 type chatUseCase struct {
@@ -27,14 +27,14 @@ func NewMsgUseCase(repo repository.ChatRepository) ChatUseCase {
 	}
 }
 
-func (uc *chatUseCase) SaveChat(name string, membersID []string) (*entity.Chat, error) {
+func (uc *chatUseCase) SaveChat(name string, membersID []string) (*domain.Chat, error) {
 	if len(membersID) < 3 {
 		return nil, errors.New("chat room cannot be less than 3 people")
 	}
 	t := time.Now()
 	chatID := GenerateID()
 	if name == "" {
-		name = "gruop"
+		name = "group"
 	}
 	chat, err := uc.repository.Save(chatID, name, membersID, t)
 	if err != nil {
@@ -63,14 +63,27 @@ func GenerateID() string {
 	return hashID
 }
 
-func AddMsgToChat(msgId, chatID string) error {
+func (uc *chatUseCase) AddMsgToChat(chatID, msgID string) (*domain.Chat, error) {
+	chat, err := uc.repository.GetByID(chatID)
+	if err != nil {
+		return nil, err
+	}
+	chat.Contents = append(chat.Contents, msgID)
+	chat, err = uc.repository.UpdContentsByID(chat)
+	if err != nil {
+		return nil, err
+	}
+	return chat, nil
+}
+
+func (uc *chatUseCase) AddMemberToChat(memberID []string, chatID string) error {
 	return nil
 }
 
-func AddMemberToChat(memberID []string, chatID string) error {
+func (uc *chatUseCase) RemoveMembersFromChat(memberID []string, chatID string) error {
 	return nil
 }
 
-func RemoveMembersFromChat(memberID []string, chatID string) error {
+func (uc *chatUseCase) ModifyChatName(newName string) error {
 	return nil
 }
