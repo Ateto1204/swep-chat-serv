@@ -64,7 +64,7 @@ func TestGetByID(t *testing.T) {
 	assert.True(t, chat.CreateAt.Equal(now), "CreateAt should match")
 }
 
-func TestUpdContentsByID(t *testing.T) {
+func TestUpdByID(t *testing.T) {
 	setupTestDB()
 	repo := repository.NewChatRepository(testDB)
 
@@ -82,7 +82,9 @@ func TestUpdContentsByID(t *testing.T) {
 		CreateAt: chat.CreateAt,
 	}
 
-	updatedChat, err := repo.UpdContentsByID(chatModel)
+	field := "Contents"
+	updatedChat, err := repo.UpdByID(field, chatModel)
+
 	assert.NoError(t, err)
 	assert.NotNil(t, updatedChat)
 	assert.Equal(t, chatID, updatedChat.ID)

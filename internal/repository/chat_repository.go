@@ -12,7 +12,7 @@ import (
 type ChatRepository interface {
 	Save(chatID string, name string, membersID []string, t time.Time) (*domain.Chat, error)
 	GetByID(id string) (*domain.Chat, error)
-	UpdContentsByID(chat *domain.Chat) (*domain.Chat, error)
+	UpdByID(field string, chat *domain.Chat) (*domain.Chat, error)
 }
 
 type chatRepository struct {
@@ -55,12 +55,12 @@ func (r *chatRepository) GetByID(chatID string) (*domain.Chat, error) {
 	return chatModel, nil
 }
 
-func (r *chatRepository) UpdContentsByID(chat *domain.Chat) (*domain.Chat, error) {
+func (r *chatRepository) UpdByID(field string, chat *domain.Chat) (*domain.Chat, error) {
 	chatEntity, err := parseToEntity(chat)
 	if err != nil {
 		return nil, err
 	}
-	if err := r.db.Model(chatEntity).Update("Contents", chatEntity.Contents).Error; err != nil {
+	if err := r.db.Model(chatEntity).Update(field, chatEntity.Contents).Error; err != nil {
 		return nil, err
 	}
 	return r.GetByID(chat.ID)
