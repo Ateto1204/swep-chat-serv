@@ -15,6 +15,7 @@ type ChatUseCase interface {
 	SaveChat(name string, membersID []string) (*domain.Chat, error)
 	GetChat(id string) (*domain.Chat, error)
 	AddMsgToChat(msgID, chatID string) (*domain.Chat, error)
+	ModifyChatName(chatID, newName string) (*domain.Chat, error)
 }
 
 type chatUseCase struct {
@@ -69,7 +70,8 @@ func (uc *chatUseCase) AddMsgToChat(chatID, msgID string) (*domain.Chat, error) 
 		return nil, err
 	}
 	chat.Contents = append(chat.Contents, msgID)
-	chat, err = uc.repository.UpdContentsByID(chat)
+	field := "Contents"
+	chat, err = uc.repository.UpdByID(field, chat)
 	if err != nil {
 		return nil, err
 	}
@@ -84,6 +86,16 @@ func (uc *chatUseCase) RemoveMembersFromChat(memberID []string, chatID string) e
 	return nil
 }
 
-func (uc *chatUseCase) ModifyChatName(newName string) error {
-	return nil
+func (uc *chatUseCase) ModifyChatName(chatID, newName string) (*domain.Chat, error) {
+	chat, err := uc.repository.GetByID(chatID)
+	if err != nil {
+		return nil, err
+	}
+	chat.Name = newName
+	field := "Name"
+	chat, err = uc.repository.UpdByID(field, chat)
+	if err != nil {
+		return nil, err
+	}
+	return chat, nil
 }

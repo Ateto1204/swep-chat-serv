@@ -64,7 +64,7 @@ func TestGetByID(t *testing.T) {
 	assert.True(t, chat.CreateAt.Equal(now), "CreateAt should match")
 }
 
-func TestUpdContentsByID(t *testing.T) {
+func TestUpdByIDinContents(t *testing.T) {
 	setupTestDB()
 	repo := repository.NewChatRepository(testDB)
 
@@ -82,11 +82,43 @@ func TestUpdContentsByID(t *testing.T) {
 		CreateAt: chat.CreateAt,
 	}
 
-	updatedChat, err := repo.UpdContentsByID(chatModel)
+	field := "Contents"
+	updatedChat, err := repo.UpdByID(field, chatModel)
+
 	assert.NoError(t, err)
 	assert.NotNil(t, updatedChat)
 	assert.Equal(t, chatID, updatedChat.ID)
 	assert.Equal(t, name, updatedChat.Name)
 	assert.Equal(t, membersID, updatedChat.Members)
 	assert.Equal(t, []string{"demo_msg_id"}, updatedChat.Contents)
+}
+
+func TestUpdByIDinName(t *testing.T) {
+	setupTestDB()
+	repo := repository.NewChatRepository(testDB)
+
+	chatID := "group123"
+	name := "apt"
+	membersID := []string{"user1", "user2", "user3"}
+	now := time.Now()
+	chat, _ := repo.Save(chatID, name, membersID, now)
+
+	newName := "demo_new_name"
+	chatModel := &domain.Chat{
+		ID:       chat.ID,
+		Name:     newName,
+		Members:  chat.Members,
+		Contents: chat.Contents,
+		CreateAt: chat.CreateAt,
+	}
+
+	field := "Name"
+	updatedChat, err := repo.UpdByID(field, chatModel)
+
+	assert.NoError(t, err)
+	assert.NotNil(t, updatedChat)
+	assert.Equal(t, chatID, updatedChat.ID)
+	assert.Equal(t, newName, updatedChat.Name)
+	assert.Equal(t, membersID, updatedChat.Members)
+	assert.Equal(t, []string{}, updatedChat.Contents)
 }
