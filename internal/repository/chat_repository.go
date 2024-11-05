@@ -2,6 +2,8 @@ package repository
 
 import (
 	"encoding/json"
+	"errors"
+	"reflect"
 	"time"
 
 	"github.com/Ateto1204/swep-chat-serv/entity"
@@ -60,7 +62,14 @@ func (r *chatRepository) UpdByID(field string, chat *domain.Chat) (*domain.Chat,
 	if err != nil {
 		return nil, err
 	}
-	if err := r.db.Model(chatEntity).Update(field, chatEntity.Contents).Error; err != nil {
+
+	v := reflect.ValueOf(chatEntity).Elem()
+	f := v.FieldByName(field)
+	if !f.IsValid() {
+		return nil, errors.New("specified field does not exist in chat entity")
+	}
+
+	if err := r.db.Model(chatEntity).Update(field, f.Interface()).Error; err != nil {
 		return nil, err
 	}
 	return r.GetByID(chat.ID)
