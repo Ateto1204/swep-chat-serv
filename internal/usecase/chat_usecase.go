@@ -69,7 +69,8 @@ func (uc *chatUseCase) AddMsgToChat(chatID, msgID string) (*domain.Chat, error) 
 		return nil, err
 	}
 	chat.Contents = append(chat.Contents, msgID)
-	chat, err = uc.repository.UpdContentsByID(chat)
+	field := "Contents"
+	chat, err = uc.repository.UpdByID(field, chat)
 	if err != nil {
 		return nil, err
 	}
