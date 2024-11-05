@@ -50,7 +50,7 @@ func (h *ChatHandler) GetChat(c *gin.Context) {
 	c.JSON(http.StatusOK, chat)
 }
 
-func (h *ChatHandler) UpdContents(c *gin.Context) {
+func (h *ChatHandler) UpdChatContents(c *gin.Context) {
 	type Input struct {
 		ID    string `json:"id"`
 		MsgID string `json:"msg_id"`
@@ -61,6 +61,24 @@ func (h *ChatHandler) UpdContents(c *gin.Context) {
 		return
 	}
 	chat, err := h.chatUseCase.AddMsgToChat(input.ID, input.MsgID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, chat)
+}
+
+func (h *ChatHandler) UpdChatName(c *gin.Context) {
+	type Input struct {
+		ID      string `json:"id"`
+		NewName string `json:"new_name"`
+	}
+	var input Input
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	chat, err := h.chatUseCase.ModifyChatName(input.ID, input.NewName)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
