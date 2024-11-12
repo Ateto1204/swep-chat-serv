@@ -50,7 +50,7 @@ func (h *ChatHandler) GetChat(c *gin.Context) {
 	c.JSON(http.StatusOK, chat)
 }
 
-func (h *ChatHandler) UpdChatContents(c *gin.Context) {
+func (h *ChatHandler) SendMessage(c *gin.Context) {
 	type Input struct {
 		ID    string `json:"id"`
 		MsgID string `json:"msg_id"`
@@ -68,7 +68,7 @@ func (h *ChatHandler) UpdChatContents(c *gin.Context) {
 	c.JSON(http.StatusOK, chat)
 }
 
-func (h *ChatHandler) UpdChatName(c *gin.Context) {
+func (h *ChatHandler) ChangeChatName(c *gin.Context) {
 	type Input struct {
 		ID      string `json:"id"`
 		NewName string `json:"new_name"`
@@ -79,6 +79,42 @@ func (h *ChatHandler) UpdChatName(c *gin.Context) {
 		return
 	}
 	chat, err := h.chatUseCase.ModifyChatName(input.ID, input.NewName)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, chat)
+}
+
+func (h *ChatHandler) AddNewMember(c *gin.Context) {
+	type Input struct {
+		ChatID   string `json:"chat_id"`
+		MemberID string `json:"member_id"`
+	}
+	var input Input
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	chat, err := h.chatUseCase.AddMemberToChat(input.ChatID, input.MemberID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, chat)
+}
+
+func (h *ChatHandler) RemoveMember(c *gin.Context) {
+	type Input struct {
+		ChatID   string `json:"chat_id"`
+		MemberID string `json:"member_id"`
+	}
+	var input Input
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	chat, err := h.chatUseCase.RemoveMembersFromChat(input.ChatID, input.MemberID)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return

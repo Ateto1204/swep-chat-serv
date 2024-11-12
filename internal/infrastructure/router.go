@@ -13,10 +13,12 @@ func NewRouter(chatUseCase usecase.ChatUseCase) *gin.Engine {
 
 	handler := delivery.NewChatHandler(chatUseCase)
 
-	router.POST("/api/chat", handler.SaveChat)
-	router.POST("/api/chat/id", handler.GetChat)
-	router.PATCH("/api/chat/add-msg", handler.UpdChatContents)
-	router.PATCH("/api/chat/rename", handler.UpdChatName)
+	router.POST("/api", handler.SaveChat)
+	router.POST("/api/id", handler.GetChat)
+	router.PATCH("/api/msg-add", handler.SendMessage)
+	router.PATCH("/api/name-modify", handler.ChangeChatName)
+	router.PATCH("/api/member-add", handler.AddNewMember)
+	router.PATCH("/api/member-remove", handler.RemoveMember)
 
 	return router
 }
