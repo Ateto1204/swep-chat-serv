@@ -122,3 +122,31 @@ func TestUpdByIDinName(t *testing.T) {
 	assert.Equal(t, membersID, updatedChat.Members)
 	assert.Equal(t, []string{}, updatedChat.Contents)
 }
+
+func TestUpdByIDinMember(t *testing.T) {
+	setupTestDB()
+	repo := repository.NewChatRepository(testDB)
+
+	chatID := "group123"
+	name := "apt"
+	membersID := []string{"user1", "user2", "user3"}
+	now := time.Now()
+	chat, _ := repo.Save(chatID, name, membersID, now)
+
+	chatModel := &domain.Chat{
+		ID:       chat.ID,
+		Name:     chat.Name,
+		Members:  []string{"user1", "user2", "user3", "user4"},
+		Contents: chat.Contents,
+		CreateAt: chat.CreateAt,
+	}
+
+	field := "Members"
+	updatedChat, err := repo.UpdByID(field, chatModel)
+
+	assert.NoError(t, err)
+	assert.NotNil(t, updatedChat)
+	assert.Equal(t, chatID, updatedChat.ID)
+	assert.Equal(t, name, updatedChat.Name)
+	assert.Equal(t, []string{"user1", "user2", "user3", "user4"}, updatedChat.Members)
+}
