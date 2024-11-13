@@ -27,8 +27,35 @@ jobs:
       - name: Install dependencies
         run: go mod download
 
-      - name: Run tests
-        run: go test ./... -v
-
       - name: Build project
         run: go build -o myapp
+
+      - name: Save dependencies and build output
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifacts
+          path: |
+            ~/go/pkg/mod
+            myapp
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.22'
+
+      - name: Restore build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build-artifacts
+          path: ~/go
+
+      - name: Run tests
+        run: go test ./... -v
