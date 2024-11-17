@@ -31,8 +31,8 @@ func NewMsgUseCase(repo repository.ChatRepository) ChatUseCase {
 }
 
 func (uc *chatUseCase) SaveChat(name string, membersID []string) (*domain.Chat, error) {
-	if len(membersID) < 3 {
-		return nil, errors.New("chat room cannot be less than 3 people")
+	if len(membersID) < 2 {
+		return nil, errors.New("chat room cannot be less than 2 people")
 	}
 	t := time.Now()
 	chatID := GenerateID()
