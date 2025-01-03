@@ -18,6 +18,7 @@ type ChatUseCase interface {
 	ModifyChatName(chatID, newName string) (*domain.Chat, error)
 	AddMemberToChat(chatID, memberID string) (*domain.Chat, error)
 	RemoveMembersFromChat(chatID, memberID string) (*domain.Chat, error)
+	DeleteChat(chatID string) error
 }
 
 type chatUseCase struct {
@@ -35,7 +36,7 @@ func (uc *chatUseCase) SaveChat(name string, membersID []string) (*domain.Chat, 
 		return nil, errors.New("chat room cannot be less than 2 people")
 	}
 	t := time.Now()
-	chatID := GenerateID()
+	chatID := generateID()
 	if name == "" {
 		name = "group"
 	}
@@ -98,6 +99,22 @@ func (uc *chatUseCase) ModifyChatName(chatID, newName string) (*domain.Chat, err
 	return uc.repository.UpdByID(field, chat)
 }
 
+func (uc *chatUseCase) DeleteChat(chatID string) error {
+	chat, err := uc.repository.GetByID(chatID)
+	if err != nil {
+		return err
+	}
+	if chat.IsDeleted {
+		return errors.New("the chat room is already deleted")
+	}
+	chat.IsDeleted = true
+	field := "IsDeleted"
+	if _, err = uc.repository.UpdByID(field, chat); err != nil {
+		return err
+	}
+	return nil
+}
+
 func removeFromSlice(slice []string, target string) []string {
 	for i, v := range slice {
 		if v == target {
@@ -107,7 +124,7 @@ func removeFromSlice(slice []string, target string) []string {
 	return slice
 }
 
-func GenerateID() string {
+func generateID() string {
 	timestamp := time.Now().UnixNano()
 
 	input := fmt.Sprintf("%d", timestamp)
