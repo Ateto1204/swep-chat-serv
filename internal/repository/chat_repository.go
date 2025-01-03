@@ -85,11 +85,12 @@ func parseToEntity(chat *domain.Chat) (*entity.Chat, error) {
 		return nil, err
 	}
 	chatEntity := &entity.Chat{
-		ID:       chat.ID,
-		Name:     chat.Name,
-		Members:  membersStr,
-		Contents: contentsStr,
-		CreateAt: chat.CreateAt,
+		ID:        chat.ID,
+		Name:      chat.Name,
+		Members:   membersStr,
+		Contents:  contentsStr,
+		CreateAt:  chat.CreateAt,
+		IsDeleted: chat.IsDeleted,
 	}
 	return chatEntity, nil
 }
@@ -104,11 +105,12 @@ func parseToModel(chat *entity.Chat) (*domain.Chat, error) {
 		return nil, err
 	}
 	chatModel := &domain.Chat{
-		ID:       chat.ID,
-		Name:     chat.Name,
-		Members:  membersData,
-		Contents: contentsData,
-		CreateAt: chat.CreateAt,
+		ID:        chat.ID,
+		Name:      chat.Name,
+		Members:   membersData,
+		Contents:  contentsData,
+		CreateAt:  chat.CreateAt,
+		IsDeleted: chat.IsDeleted,
 	}
 	return chatModel, nil
 }

@@ -19,6 +19,7 @@ func NewRouter(chatUseCase usecase.ChatUseCase) *gin.Engine {
 	router.PATCH("/api/name-modify", handler.ChangeChatName)
 	router.PATCH("/api/member-add", handler.AddNewMember)
 	router.PATCH("/api/member-remove", handler.RemoveMember)
+	router.DELETE("/api/chat-del", handler.DeleteChat)
 
 	return router
 }
