@@ -121,3 +121,20 @@ func (h *ChatHandler) RemoveMember(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, chat)
 }
+
+func (h *ChatHandler) DeleteChat(c *gin.Context) {
+	type Input struct {
+		ChatID string `json:"id"`
+	}
+	var input Input
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+	err := h.chatUseCase.DeleteChat(input.ChatID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"message": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "successfully"})
+}
